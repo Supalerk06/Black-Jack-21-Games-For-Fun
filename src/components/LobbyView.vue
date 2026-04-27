@@ -5,9 +5,20 @@ defineEmits(['update:playerName', 'update:character', 'start'])
 
 <template>
   <section class="flex flex-col items-center justify-center flex-1 gap-6 p-6">
-    <h1 class="text-5xl font-bold tracking-widest text-yellow-400">
-      BLACK JAE <span class="text-cyan-400">21</span>
-    </h1>
+
+
+  <h1 class="text-6xl md:text-7xl font-black tracking-widest italic cursor-default transition-all duration-300 hover:scale-105">
+    
+    <span class="text-yellow-300 [text-shadow:_0_0_15px_#facc15,_0_0_30px_#facc15,_0_0_45px_#facc1580]">
+      BLACK JACK
+    </span>
+    
+    <span class="text-cyan-300 [text-shadow:_0_0_15px_#22d3ee,_0_0_30px_#22d3ee,_0_0_45px_#22d3ee80] ml-2">
+      21
+    </span>
+    
+  </h1>
+
 
     <input
       :value="playerName"

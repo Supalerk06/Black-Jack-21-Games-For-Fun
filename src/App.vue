@@ -1,10 +1,14 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import LobbyView from './components/LobbyView.vue'
 import GameView from './components/GameView.vue'
 import ResultView from './components/ResultView.vue'
-import { computed } from 'vue'
 
+const STAGES = [
+  { id: 1, name: 'Adt Master', title: 'First Boss', img: '/src/assets/boss1.webp', stopAt: 15, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #3d2800 0%, #1a0f00 60%, #0a0600 100%)', quote: '"เจ้ามีนามว่าอะไร !?"' },
+  { id: 2, name: 'Art Aud Aud Art ', title: 'Second Boss', img: '/src/assets/boss2.webp', stopAt: 17, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #3d0000 0%, #1a0000 60%, #050000 100%)', quote: '"อื้ด อืดอื้อ อ้าด อ้าด"' },
+  { id: 3, name: 'Bad guy smilyee', title: 'Last Boss', img: '/src/assets/boss3.webp', stopAt: 18, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #1a0030 0%, #0a0018 60%, #030008 100%)', quote: '"สวัดดี รู้มั้ยใครตาย...."' },
+]
 const characters = [
   { name: 'มือปืนสี่ตา ', img: '/src/assets/player1real.gif' },
   { name: 'ค้อนยักบะลัก ', img: '/src/assets/player2.webp' },
@@ -12,35 +16,26 @@ const characters = [
 ]
 
 const gameState = ref('LOBBY')
-
-
 const playerName = ref('')
 const character = ref('Aether-Knight')
+const stageIdx = ref(0)
 const playerCards = ref([])
 const dealerCards = ref([])
 const phase = ref('PLAYER')
 const message = ref('')
+const bossHp = ref(3)
+const shake = ref(false)
+const bossHit = ref(false)
+const playerHit = ref(false)
+const showResult = ref('') 
+const dealerRevealed = ref(false)
 
+const stage = computed(() => STAGES[stageIdx.value])
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
 function makeCard(hidden = false) { return { val: rand(1, 10), hidden } }
 function calcScore(cards) { return cards.filter(c => !c.hidden).reduce((a, c) => a + c.val, 0) }
-
 const playerScore = computed(() => calcScore(playerCards.value))
 const dealerScore = computed(() => calcScore(dealerCards.value))
-
-
-const STAGES = [
-  { id: 1, name: 'Adt Master', title: 'Boss 1', img: '/src/assets/boss1.webp', stopAt: 15, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #3d2800 0%, #1a0f00 60%, #0a0600 100%)', quote: '"เจ้ามีนามว่าอะไร !?"' },
-  { id: 2, name: 'Art Aud Aud Art ', title: 'Boss 2', img: '/src/assets/boss2.webp', stopAt: 17, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #3d0000 0%, #1a0000 60%, #050000 100%)', quote: '"อื้ด อืดอื้อ อ้าด อ้าด"' },
-  { id: 3, name: 'Father Killer', title: 'Last Boss', img: '/src/assets/boss3.webp', stopAt: 18, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #1a0030 0%, #0a0018 60%, #030008 100%)', quote: '"สวัดดี รู้มั้ยใครตาย...."' },
-]
-
-const stageIdx = ref(0)
-const bossHp = ref(3)
-const showResult = ref('') 
-const dealerRevealed = ref(false)
-const stage = computed(() => STAGES[stageIdx.value])
-const delay = ms => new Promise(r => setTimeout(r, ms))
 
 function startGame() {
   if (!playerName.value.trim()) return
@@ -64,7 +59,8 @@ function doHit() {
   playerCards.value.push(makeCard())
   if (playerScore.value > 21) {
     message.value = '⚡ พลังงานล้นระบบ! Core Overload!'
-    // รอเรียก trigger ใน commit ถัดไป
+    triggerPlayerHit()
+    endRound(false)
   } else {
     message.value = `เพิ่มพลังงาน → ${playerScore.value}`
   }
@@ -86,8 +82,12 @@ async function doStay() {
   const d = dealerScore.value
   if (d > 21 || p > d) {
     message.value = '✦ ชัยชนะ! พลังงาน Aether ทำลายระบบ!'
+    triggerBossHit()
+    endRound(true)
   } else if (p < d) {
     message.value = '✸ ระบบล้มเหลว... ศัตรูมีพลังเหนือกว่า'
+    triggerPlayerHit()
+    endRound(false)
   } else {
     message.value = '◈ สมดุล! กำลังรีเซ็ตระบบ...'
     showResult.value = 'DRAW'
@@ -96,6 +96,30 @@ async function doStay() {
   }
 }
 
+async function endRound(isWin) {
+  phase.value = 'END'
+  await delay(1200)
+  showResult.value = isWin ? 'WIN' : 'LOSE'
+  setTimeout(async () => {
+    if (isWin) {
+      bossHp.value--
+      if (bossHp.value <= 0) {
+        if (stageIdx.value < STAGES.length - 1) {
+          await delay(800)
+          stageIdx.value++
+          bossHp.value = STAGES[stageIdx.value].hp
+          dealerRevealed.value = false
+          startRound()
+        } else { gameState.value = 'RESULT' }
+      } else { startRound() }
+    } else { startRound() }
+  }, 2000)
+}
+
+function triggerBossHit() { bossHit.value = true; setTimeout(() => bossHit.value = false, 600) }
+function triggerPlayerHit() { shake.value = true; playerHit.value = true; setTimeout(() => { shake.value = false; playerHit.value = false }, 600) }
+const delay = ms => new Promise(r => setTimeout(r, ms))
+function restart() { stageIdx.value = 0; bossHp.value = STAGES[0].hp; playerName.value = ''; gameState.value = 'LOBBY' }
 </script>
 
 <template>
@@ -130,7 +154,13 @@ async function doStay() {
       @hit="doHit"
       @stay="doStay"
     />
-    
+
+    <ResultView 
+      v-if="gameState === 'RESULT'"
+      :playerName="playerName"
+      @restart="restart"
+    />
+
   </div>
 </template>
 
