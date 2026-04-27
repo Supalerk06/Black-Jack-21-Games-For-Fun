@@ -27,6 +27,75 @@ function calcScore(cards) { return cards.filter(c => !c.hidden).reduce((a, c) =>
 
 const playerScore = computed(() => calcScore(playerCards.value))
 const dealerScore = computed(() => calcScore(dealerCards.value))
+
+
+const STAGES = [
+  { id: 1, name: 'Adt Master', title: 'Boss 1', img: '/src/assets/boss1.webp', stopAt: 15, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #3d2800 0%, #1a0f00 60%, #0a0600 100%)', quote: '"เจ้ามีนามว่าอะไร !?"' },
+  { id: 2, name: 'Art Aud Aud Art ', title: 'Boss 2', img: '/src/assets/boss2.webp', stopAt: 17, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #3d0000 0%, #1a0000 60%, #050000 100%)', quote: '"อื้ด อืดอื้อ อ้าด อ้าด"' },
+  { id: 3, name: 'Father Killer', title: 'Last Boss', img: '/src/assets/boss3.webp', stopAt: 18, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #1a0030 0%, #0a0018 60%, #030008 100%)', quote: '"สวัดดี รู้มั้ยใครตาย...."' },
+]
+
+const stageIdx = ref(0)
+const bossHp = ref(3)
+const showResult = ref('') 
+const dealerRevealed = ref(false)
+const stage = computed(() => STAGES[stageIdx.value])
+const delay = ms => new Promise(r => setTimeout(r, ms))
+
+function startGame() {
+  if (!playerName.value.trim()) return
+  gameState.value = 'PLAYING'
+  bossHp.value = stage.value.hp
+  dealerRevealed.value = false
+  startRound()
+}
+
+function startRound() {
+  playerCards.value = [makeCard(), makeCard()]
+  dealerCards.value = [makeCard(), makeCard(true)]
+  phase.value = 'PLAYER'
+  showResult.value = ''
+  dealerRevealed.value = false
+  message.value = stage.value.quote
+}
+
+function doHit() {
+  if (phase.value !== 'PLAYER') return
+  playerCards.value.push(makeCard())
+  if (playerScore.value > 21) {
+    message.value = '⚡ พลังงานล้นระบบ! Core Overload!'
+    // รอเรียก trigger ใน commit ถัดไป
+  } else {
+    message.value = `เพิ่มพลังงาน → ${playerScore.value}`
+  }
+}
+
+async function doStay() {
+  if (phase.value !== 'PLAYER') return
+  phase.value = 'DEALER'
+  dealerCards.value = dealerCards.value.map(c => ({ ...c, hidden: false }))
+  dealerRevealed.value = true
+  message.value = `${stage.value.name} กำลังดำเนินการ...`
+  await delay(800)
+  while (calcScore(dealerCards.value) < stage.value.stopAt) {
+    dealerCards.value.push(makeCard())
+    message.value = `${stage.value.name} เพิ่มพลัง → ${calcScore(dealerCards.value)}`
+    await delay(900)
+  }
+  const p = playerScore.value
+  const d = dealerScore.value
+  if (d > 21 || p > d) {
+    message.value = '✦ ชัยชนะ! พลังงาน Aether ทำลายระบบ!'
+  } else if (p < d) {
+    message.value = '✸ ระบบล้มเหลว... ศัตรูมีพลังเหนือกว่า'
+  } else {
+    message.value = '◈ สมดุล! กำลังรีเซ็ตระบบ...'
+    showResult.value = 'DRAW'
+    await delay(2000)
+    startRound()
+  }
+}
+
 </script>
 
 <template>
