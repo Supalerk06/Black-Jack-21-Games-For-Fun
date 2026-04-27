@@ -109,6 +109,28 @@ async function doStay() {
       @start="startGame"
     />
 
+    <GameView 
+      v-if="gameState === 'PLAYING'"
+      :STAGES="STAGES"
+      :stageIdx="stageIdx"
+      :stage="stage"
+      :bossHp="bossHp"
+      :playerCards="playerCards"
+      :playerScore="playerScore"
+      :dealerCards="dealerCards"
+      :dealerScore="dealerScore"
+      :dealerRevealed="dealerRevealed"
+      :playerName="playerName"
+      :character="character"
+      :characters="characters"
+      :message="message"
+      :phase="phase"
+      :bossHit="bossHit"
+      :showResult="showResult"
+      @hit="doHit"
+      @stay="doStay"
+    />
+    
   </div>
 </template>
 
