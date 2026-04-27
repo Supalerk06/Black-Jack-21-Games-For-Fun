@@ -5,6 +5,12 @@ import GameView from './components/GameView.vue'
 import ResultView from './components/ResultView.vue'
 import { computed } from 'vue'
 
+const characters = [
+  { name: 'มือปืนสี่ตา ', img: '/src/assets/player1real.gif' },
+  { name: 'ค้อนยักบะลัก ', img: '/src/assets/player2.webp' },
+  { name: 'มีอคู่ดู๋ดี๋ ', img: '/src/assets/player3.webp' }
+]
+
 const gameState = ref('LOBBY')
 
 
@@ -25,7 +31,16 @@ const dealerScore = computed(() => calcScore(dealerCards.value))
 
 <template>
   <div class="min-h-screen flex flex-col text-yellow-100 bg-[radial-gradient(ellipse_at_50%_30%,#2a1800_0%,#0d0900_70%,#050300_100%)]">
-    </div>
+    
+    <LobbyView 
+      v-if="gameState === 'LOBBY'"
+      v-model:playerName="playerName"
+      v-model:character="character"
+      :characters="characters"
+      @start="startGame"
+    />
+
+  </div>
 </template>
 
 <style scoped>
