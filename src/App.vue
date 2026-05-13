@@ -5,7 +5,7 @@ import GameView from './components/GameView.vue'
 import ResultView from './components/ResultView.vue'
 
 const STAGES = [
-  { id: 1, name: 'Adt Master', title: 'First Boss', img: '/src/assets/boss1.webp', stopAt: 15, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #3d2800 0%, #1a0f00 60%, #0a0600 100%)', quote: '"เจ้ามีนามว่าอะไร !?"' },
+  { id: 1, name: 'ATD Master', title: 'First Boss', img: '/src/assets/boss1.webp', stopAt: 15, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #3d2800 0%, #1a0f00 60%, #0a0600 100%)', quote: '"เจ้ามีนามว่าอะไร !?"' },
   { id: 2, name: 'Art Aud Aud Art ', title: 'Second Boss', img: '/src/assets/boss2.webp', stopAt: 17, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #3d0000 0%, #1a0000 60%, #050000 100%)', quote: '"อื้ด อืดอื้อ อ้าด อ้าด"' },
   { id: 3, name: 'Bad guy smilyee', title: 'Last Boss', img: '/src/assets/boss3.webp', stopAt: 18, hp: 3, bg: 'radial-gradient(ellipse at 50% 30%, #1a0030 0%, #0a0018 60%, #030008 100%)', quote: '"สวัดดี รู้มั้ยใครตาย...."' },
 ]
@@ -17,7 +17,7 @@ const characters = [
 
 const gameState = ref('LOBBY')
 const playerName = ref('')
-const character = ref('Aether-Knight')
+const character = ref('')
 const stageIdx = ref(0)
 const playerCards = ref([])
 const dealerCards = ref([])
@@ -29,6 +29,7 @@ const bossHit = ref(false)
 const playerHit = ref(false)
 const showResult = ref('') 
 const dealerRevealed = ref(false)
+const showError = ref(false)
 
 const stage = computed(() => STAGES[stageIdx.value])
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
@@ -38,7 +39,11 @@ const playerScore = computed(() => calcScore(playerCards.value))
 const dealerScore = computed(() => calcScore(dealerCards.value))
 
 function startGame() {
-  if (!playerName.value.trim()) return
+  if (!playerName.value.trim() || !character.value) {
+    showError.value = true
+    return
+  }
+  showError.value = false
   gameState.value = 'PLAYING'
   bossHp.value = stage.value.hp
   dealerRevealed.value = false
@@ -119,7 +124,7 @@ async function endRound(isWin) {
 function triggerBossHit() { bossHit.value = true; setTimeout(() => bossHit.value = false, 600) }
 function triggerPlayerHit() { shake.value = true; playerHit.value = true; setTimeout(() => { shake.value = false; playerHit.value = false }, 600) }
 const delay = ms => new Promise(r => setTimeout(r, ms))
-function restart() { stageIdx.value = 0; bossHp.value = STAGES[0].hp; playerName.value = ''; gameState.value = 'LOBBY' }
+function restart() { stageIdx.value = 0; bossHp.value = STAGES[0].hp; playerName.value = ''; character.value = ''; gameState.value = 'LOBBY' }
 </script>
 
 <template>
@@ -130,6 +135,7 @@ function restart() { stageIdx.value = 0; bossHp.value = STAGES[0].hp; playerName
       v-model:playerName="playerName"
       v-model:character="character"
       :characters="characters"
+      :showError="showError"
       @start="startGame"
     />
 
@@ -153,6 +159,7 @@ function restart() { stageIdx.value = 0; bossHp.value = STAGES[0].hp; playerName
       :showResult="showResult"
       @hit="doHit"
       @stay="doStay"
+      @home="restart"
     />
 
     <ResultView 
