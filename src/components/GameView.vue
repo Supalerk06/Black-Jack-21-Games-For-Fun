@@ -69,8 +69,8 @@ const playerImg = props.characters.find(c => c.name === props.character)?.img
     </div>
 
     <div class="relative flex-1 flex flex-col justify-between p-4 md:p-8">
-      <div class="flex justify-end items-start gap-4">
-        <div class="lg:absolute lg:right-100 flex flex-col items-end gap-2 mt-4">
+      <div class="flex justify-end items-start gap-4 md:block">
+        <div class="md:absolute md:top-12 md:right-[200px] lg:right-[350px] xl:right-[420px] flex flex-col items-end gap-2 mt-4 z-20">
           <span class="text-[10px] text-yellow-600 uppercase font-bold mr-1">Boss Cards</span>
           <div class="flex -space-x-3">
             <div v-for="(card,i) in dealerCards" :key="i"
@@ -87,23 +87,23 @@ const playerImg = props.characters.find(c => c.name === props.character)?.img
           </div>
         </div>
         
-        <div class="lg:absolute lg:-right-25  w-32 md:w-64 lg:w-[450px] xl:w-[550px] overflow-hidden">
+        <div class="md:absolute md:top-4 md:-right-12 lg:-right-24 xl:-right-32 w-32 md:w-[280px] lg:w-[450px] xl:w-[550px] overflow-hidden z-10">
           <img :src="stage.img" class="w-full scale-x-[-1] drop-shadow-[0_0_20px_rgba(255,0,0,0.3)] transition-transform duration-500" :class="bossHit ? 'animate-boss-hit' : ''" />
         </div>
       </div>
 
-      <div class="flex items-center justify-center z-10 my-4">
+      <div class="flex items-center justify-center z-30 my-4">
         <div class="bg-black/60 backdrop-blur-md px-6 py-3 rounded-2xl border border-yellow-700 text-yellow-300 italic font-medium text-center shadow-2xl max-w-xs md:max-w-md">
           {{ message }}
         </div>
       </div>
 
-      <div class="flex justify-start items-end gap-4">
-        <div class="lg:absolute lg:-left-25 w-32 md:w-64 lg:w-[500px] xl:w-[600px] overflow-hidden">
+      <div class="flex justify-start items-end gap-4 md:block">
+        <div class="md:absolute md:bottom-4 md:-left-12 lg:-left-24 xl:-left-32 w-32 md:w-[300px] lg:w-[500px] xl:w-[600px] overflow-hidden z-10">
            <img :src="playerImg" class="w-full drop-shadow-[0_0_20px_rgba(0,255,255,0.3)] transition-transform duration-500" />
         </div>
 
-        <div class="lg:absolute lg:left-100 flex flex-col items-start gap-2 mb-4">
+        <div class="md:absolute md:bottom-12 md:left-[200px] lg:left-[350px] xl:left-[420px] flex flex-col items-start gap-2 mb-4 z-20">
           <span class="text-[10px] text-cyan-600 uppercase font-bold ml-1">Your Cards</span>
           <div class="flex -space-x-3">
             <div v-for="(card,i) in playerCards" :key="i"
