@@ -13,7 +13,7 @@ Welcome to **Black Jack 21: Boss Battle**, a futuristic and exciting blackjack c
 *   **👥 Playable Characters**:
     *   `มือปืนสี่ตา` (Four-eyed Gunslinger)
     *   `ค้อนยักบะลัก` (Gigantic Hammer Warrior)
-    *   `มีอคู่ดู๋ดี๋` (Duo Hand Brawler)
+    *   `มีดคู่ดู๋ดี๋` (Duo Hand Brawler)
 *   **🪐 Premium Design & Animations (Rich Aesthetics)**:
     *   Sleek **Cyberpunk / Sci-fi** dark radial gradients and neon glow effects.
     *   Smooth card drawing animation float (`animate-card-draw`).

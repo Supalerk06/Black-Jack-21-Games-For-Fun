@@ -49,7 +49,7 @@ const STAGES = [
 const characters = [
   { name: "มือปืนสี่ตา ", img: player1 },
   { name: "ค้อนยักบะลัก ", img: player2 },
-  { name: "มีอคู่ดู๋ดี๋ ", img: player3 },
+  { name: "มีดคู่ดู๋ดี๋ ", img: player3 },
 ];
 
 const gameState = ref("LOBBY");
